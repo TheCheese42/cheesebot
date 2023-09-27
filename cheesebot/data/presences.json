@@ -1,0 +1,19 @@
+[
+    {
+        "text": "Serving {} Guilds with Cheesecake! 🍰🍰🍰",
+        "status": "online",
+        "replace": [
+            "guild_count"
+        ]
+    },
+    {
+        "text": "Baking Cake for my beloved Users! 🍰🍰🍰",
+        "status": "idle",
+        "replace": []
+    },
+    {
+        "text": "In the Cheesecake Factory! 🍰🍰🍰",
+        "status": "dnd",
+        "replace": []
+    }
+]

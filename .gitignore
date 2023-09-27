@@ -1,6 +1,9 @@
 # IMPORTANT: Discord bot token
 .token
 
+# Log
+latest.log
+
 # Byte-compiled
 __pycache__/
 

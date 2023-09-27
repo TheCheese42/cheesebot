@@ -2,8 +2,13 @@ import asyncio
 import logging
 import sys
 from pathlib import Path
+from typing import Optional
 
 from bot import CheeseBot
+from logger import LOGGER
+
+
+BOT: Optional[CheeseBot] = None
 
 
 def load_token() -> str:
@@ -14,16 +19,23 @@ def load_token() -> str:
 
 
 async def main():
+    global BOT
+
     # Setup logging
-    logger = logging.getLogger('discord')
-    logger.setLevel(logging.DEBUG)
+    LOGGER.setLevel(logging.INFO)
     handler = logging.FileHandler(
-        filename='discord.log', encoding='utf-8', mode='w'
+        filename='latest.log', encoding='utf-8', mode='w'
     )
     fmt_str = "[%(asctime)s] [%(levelname)s] %(message)s"
     datefmt_str = "%Y-%m-%d %H:%M:%S"
     handler.setFormatter(logging.Formatter(fmt_str, datefmt_str))
-    logger.addHandler(handler)
+    LOGGER.addHandler(handler)
+    if __debug__:
+        debug_handler = logging.StreamHandler(sys.stdout)
+        fmt_str = "[%(asctime)s] [%(levelname)s] %(message)s"
+        datefmt_str = "%Y-%m-%d %H:%M:%S"
+        debug_handler.setFormatter(logging.Formatter(fmt_str, datefmt_str))
+        LOGGER.addHandler(debug_handler)
 
     # Construct the bot
     cogs = (
@@ -35,6 +47,7 @@ async def main():
 
     cheese_bot = CheeseBot(cogs)
     cheese_bot.setup()
+    BOT = cheese_bot
     await cheese_bot.start(load_token())
 
 
@@ -42,7 +55,12 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logging.warning("Killed the Bot by raising KeyboardInterrupt.")
+        LOGGER.info("[SHUTDOWN] Shutting down after KeyboardInterrupt.")
+        if BOT is not None:
+            for cog in tuple(BOT.cogs.keys()):
+                BOT.unload_extension(f"cogs.{cog.lower()}")
+        LOGGER.info("[SHUTDOWN] Successfully shut down.")
+        sys.exit(0)
     except Exception:
-        logging.exception("Uncatched Exception occurred.")
+        LOGGER.exception("Uncatched Exception occurred.")
         raise
