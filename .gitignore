@@ -1,0 +1,25 @@
+# IMPORTANT: Discord bot token
+.token
+
+# Byte-compiled
+__pycache__/
+
+# venv
+.venv/
+
+# mypy
+.mypy_cache/
+
+# pytest
+.pytest_cache/
+
+# egg
+*.egg-info
+*.egg
+
+# vscode
+*.code-workspace
+
+# nuitka
+*.build/
+*.dist/
