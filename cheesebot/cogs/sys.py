@@ -8,6 +8,7 @@ from bot import BOT
 from discord import utils
 from discord.ext import commands, tasks
 from logger import LOGGER
+import time
 
 
 class Sys(discord.Cog):
@@ -151,6 +152,46 @@ class Sys(discord.Cog):
                     text="Discord Support Server"
                 )
             )
+            LOGGER.exception(error)
+            raise error
+
+    @discord.slash_command(
+        name="ping",
+        description="Test the Bot Latency.",
+    )
+    async def ping(self, ctx: discord.ApplicationContext):
+        start_time = time.time()
+        message = await ctx.respond("Testing Ping...")
+        end_time = time.time()
+        bot_latency = round(self.bot.latency * 1000)
+        api_latency = round((end_time - start_time) * 1000)
+        if bot_latency < 70 and api_latency < 300:
+            color = 0x09FF00
+        elif bot_latency < 150 and api_latency < 500:
+            color = 0xFF6200
+        else:
+            color = 0xDE0000
+        embed = discord.Embed(
+            title="Pong!", color=color, timestamp=utils.utcnow()
+        )
+        embed.add_field(name="Bot Latency", value=f"{bot_latency}ms")
+        embed.add_field(
+            name="API/Message Latency",
+            value=f"{api_latency}ms",
+        )
+        if color == 0xFF6200 or color == 0xDE0000:
+            embed.add_field(
+                name="High Values",
+                value="If the Bot latency is high the Bot is probably "
+                      "overloaded.\nIf the API Latency is high, Discord most "
+                      "likely got some problems.\nIf you don't feel that the "
+                      "Bot is slow don't worry about high numbers, 1000ms is "
+                      "also just a second.",
+                inline=False,
+            )
+
+        embed.set_footer(text=f"Pong requested by {ctx.author.name}")
+        await message.edit(content=None, embed=embed)
 
     def presences_gen(self):
         while True:

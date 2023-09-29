@@ -4,6 +4,9 @@
 # Log
 latest.log
 
+# Lib
+lib/
+
 # Byte-compiled
 __pycache__/
 

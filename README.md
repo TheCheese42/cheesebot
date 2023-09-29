@@ -48,14 +48,18 @@ python3 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-Install depencies:
+Install dependencies:
 
 ```shell
 python3 -m pip install -U pip
 python3 -m pip install -r requirements.txt
 ```
 
-### Step 3: Run the Bot
+### Step 3: Add you Token
+
+Create a `.token` file in the projects root directory and paste your bot token there.
+
+### Step 4: Run the Bot
 
 ```shell
 python3 cheesebot
@@ -64,3 +68,7 @@ python3 cheesebot
 ## Localization
 
 The bot is NOT making use of localized slash commands. This is because people with different languages than the command executor most likely won't understand the output. This is not very useful in multilingual servers. Ability for guild-wide localization may be added in the future.
+
+## Voice Support
+
+For voice support to work you have to create a `lib/` folder in the projects root directory. This folder should contain an ffmpeg binary, called `ffmpeg` (or `ffmpeg.exe` on Windows). Also make sure libopus is installed on your system.

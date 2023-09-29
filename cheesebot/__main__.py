@@ -35,6 +35,7 @@ async def main():
     # Construct the bot
     cogs = (
         "sys",
+        "songs",
     )
     if len(sys.argv) >= 2:
         cogs = sys.argv[1].split(",")
