@@ -2,13 +2,10 @@ import asyncio
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
 
 from bot import CheeseBot
+import bot
 from logger import LOGGER
-
-
-BOT: Optional[CheeseBot] = None
 
 
 def load_token() -> str:
@@ -19,8 +16,6 @@ def load_token() -> str:
 
 
 async def main():
-    global BOT
-
     # Setup logging
     LOGGER.setLevel(logging.INFO)
     handler = logging.FileHandler(
@@ -46,8 +41,8 @@ async def main():
         cogs = [i.strip() for i in cogs if i]
 
     cheese_bot = CheeseBot(cogs)
+    bot.BOT = cheese_bot
     cheese_bot.setup()
-    BOT = cheese_bot
     await cheese_bot.start(load_token())
 
 
@@ -56,9 +51,9 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         LOGGER.info("[SHUTDOWN] Shutting down after KeyboardInterrupt.")
-        if BOT is not None:
-            for cog in tuple(BOT.cogs.keys()):
-                BOT.unload_extension(f"cogs.{cog.lower()}")
+        if bot.BOT is not None:
+            for cog in tuple(bot.BOT.cogs.keys()):
+                bot.BOT.unload_extension(f"cogs.{cog.lower()}")
         LOGGER.info("[SHUTDOWN] Successfully shut down.")
         sys.exit(0)
     except Exception:

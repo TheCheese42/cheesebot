@@ -1,6 +1,12 @@
+import sys
+
 import data
 import discord
-from discord.ext import tasks
+import templates
+import views
+from bot import BOT
+from discord import utils
+from discord.ext import commands, tasks
 from logger import LOGGER
 
 
@@ -35,12 +41,116 @@ class Sys(discord.Cog):
         ]
         text = presence["text"].format(*formats)
         status = discord.Status(presence["status"])
-        LOGGER.info(f"Changing presence to {text}")
         await self.bot.change_presence(
             activity=discord.CustomActivity(text),
             status=status
         )
         self.bot.status = status
+
+    @discord.slash_command(
+        name="reload",
+        description="Hot-reload all or selected cogs.",
+    )
+    @discord.option(
+        name="module",
+        description="The module to be reloaded.",
+        type=str,
+        choices=BOT.cogs_to_load,
+        required=False,
+    )
+    @commands.is_owner()
+    async def reload(self, ctx: discord.ApplicationContext, module: str):
+        cogs_to_reload: str | list[str] = module or list(self.bot.cogs.keys())
+
+        if isinstance(cogs_to_reload, str):
+            cogs_to_reload = [cogs_to_reload]
+
+        embed = templates.InfoEmbed(
+            title="Reloading...",
+            description="Reloading modules: "
+                        f"{', '.join(cogs_to_reload).lower()}",
+            timestamp=utils.utcnow(),
+            author=discord.EmbedAuthor(
+                name=ctx.author.name,
+                icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
+            ),
+        )
+        message = await ctx.respond(embed=embed)
+        for cog in cogs_to_reload:
+            try:
+                self.bot.reload_extension(f"cogs.{cog.lower()}")
+            except discord.ExtensionNotLoaded:
+                embed = templates.FailureEmbed(
+                    title="Error Reloading!",
+                    description=f"The requested module `{cog.lower()}` does "
+                                "not exist.",
+                    timestamp=utils.utcnow(),
+                    author=embed.author
+                )
+            else:
+                embed = templates.SuccessEmbed(
+                    title="Reloaded!",
+                    description="Reloaded modules: "
+                                f"{', '.join(cogs_to_reload).lower()}",
+                    timestamp=utils.utcnow(),
+                    author=embed.author,
+                )
+        await message.edit(embed=embed)
+
+    @discord.slash_command(
+        name="shutdown",
+        description="Shut the Bot down.",
+    )
+    @commands.is_owner()
+    async def shutdown(self, ctx: discord.ApplicationContext):
+        embed = templates.InfoEmbed(
+            title="Shutting down...",
+            description="Unloading modules...",
+            timestamp=utils.utcnow(),
+            author=discord.EmbedAuthor(
+                name=ctx.author.name,
+                icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
+            ),
+        )
+        message = await ctx.respond(embed=embed)
+        for cog in tuple(self.bot.cogs.keys()):
+            self.bot.unload_extension(f"cogs.{cog.lower()}")
+        embed = templates.SuccessEmbed(
+            title="Shut down",
+            description=f"{self.bot.user.name} has been shut down "  # type: ignore  # noqa
+                        "successfully.",
+            timestamp=utils.utcnow(),
+            author=embed.author,
+        )
+        await message.edit(embed=embed)
+        sys.exit(0)
+
+    @BOT.event
+    async def on_application_command_error(  # type: ignore
+        ctx: discord.ApplicationContext,
+        error: discord.DiscordException,
+    ):
+        if isinstance(error, commands.NotOwner):
+            await ctx.respond(
+                "Only my dear creator can do that.", ephemeral=True
+            )
+        else:
+            embed = templates.FailureEmbed(
+                title="Error running command...",
+                description=(
+                    "An unexpected error occurred when running command "
+                    f"{ctx.command.qualified_name}: `{error}`\n"
+                    "This has been logged and will be fixed soon. If you're "
+                    "experiencing further issues please reach out to us at "
+                    "CheeseBot's support Server. Thank you for understanding!"
+                )
+            )
+            await ctx.respond(
+                embed=embed, view=views.LinkView(
+                    url="https://example.com",
+                    text="Discord Support Server"
+                )
+            )
 
     def presences_gen(self):
         while True:
