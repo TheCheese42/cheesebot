@@ -1,6 +1,6 @@
 # Cheese Bot
 
-The most cheesy bot on the Planet!
+The most cheesiest bot on the Planet!
 Despite not having the ability to bypass earth's boundaries, I'll try my best serving you a lot of cheesecake.
 
 Cheese bot is a several purpose Discord Bot written in Python, using the Pycord API Wrapper.
