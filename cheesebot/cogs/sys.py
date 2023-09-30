@@ -165,9 +165,9 @@ class Sys(discord.Cog):
         end_time = time.time()
         bot_latency = round(self.bot.latency * 1000)
         api_latency = round((end_time - start_time) * 1000)
-        if bot_latency < 70 and api_latency < 300:
+        if bot_latency + api_latency >= 660:
             color = 0x09FF00
-        elif bot_latency < 150 and api_latency < 500:
+        elif bot_latency + api_latency >= 800:
             color = 0xFF6200
         else:
             color = 0xDE0000
