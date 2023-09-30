@@ -8,7 +8,23 @@ from bot import BOT
 from discord import utils
 from discord.ext import commands, tasks
 from logger import LOGGER
+import platform
 import time
+import psutil
+
+
+def get_size(bytes, suffix="B"):
+    """
+    Scale bytes to its proper format
+    e.g:
+        1253656 => '1.20MB'
+        1253656678 => '1.17GB'
+    """
+    factor = 1024
+    for unit in ["", "K", "M", "G", "T", "P"]:
+        if bytes < factor:
+            return f"{bytes:.2f}{unit}{suffix}"
+        bytes /= factor
 
 
 class Sys(discord.Cog):
@@ -192,6 +208,50 @@ class Sys(discord.Cog):
 
         embed.set_footer(text=f"Pong requested by {ctx.author.name}")
         await message.edit(content=None, embed=embed)
+
+    @discord.slash_command(
+        name="system",
+        description="Useful system information about the Bot's server."
+    )
+    async def system(self, ctx: discord.ApplicationContext):
+        uname = platform.uname()
+        system = uname.system
+        release = uname.release
+        version = uname.version
+        processor = uname.processor
+        physical_cores = psutil.cpu_count(logical=False)
+        total_cores = psutil.cpu_count(logical=True)
+        cpu_usage = psutil.cpu_percent(percpu=True, interval=1)
+        svmem = psutil.virtual_memory()
+        total_ram = get_size(svmem.total)
+        used_ram = get_size(svmem.used)
+        available_ram = get_size(svmem.available)
+        used_ram_percent = svmem.percent
+        embed = templates.InfoEmbed(
+            title="System Information",
+            timestamp=utils.utcnow(),
+            author=discord.EmbedAuthor(
+                name=ctx.author.name,
+                icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
+            ),
+        )
+        cpu_usage_str = "\n".join(
+            [f"CPU {i}: {p}%" for i, p in enumerate(cpu_usage, 1)]
+        )
+        embed.add_field(name="System", value=system)
+        embed.add_field(name="Release", value=release)
+        embed.add_field(name="Version", value=version)
+        embed.add_field(name="Processor", value=processor)
+        embed.add_field(name="Physical Cores", value=physical_cores)
+        embed.add_field(name="Total Cores", value=total_cores)
+        embed.add_field(name="CPU Usage", value=f"{cpu_usage_str}")
+        embed.add_field(name="Total RAM", value=total_ram)
+        embed.add_field(name="Available RAM", value=available_ram)
+        embed.add_field(name="Used RAM", value=used_ram)
+        embed.add_field(
+            name="Used RAM Percentage", value=f"{used_ram_percent}%"
+        )
+        await ctx.respond(embed=embed)
 
     def presences_gen(self):
         while True:
