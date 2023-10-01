@@ -253,6 +253,56 @@ class Sys(discord.Cog):
         )
         await ctx.respond(embed=embed)
 
+    @discord.slash_command(
+        name="about",
+        description="About the Bot.",
+    )
+    async def about(self, ctx: discord.ApplicationContext):
+        app_info = await self.bot.application_info()
+        embed = templates.InfoEmbed(
+            title=f"About {self.bot.user.name}",  # type: ignore
+            description=app_info.summary,
+            timestamp=utils.utcnow(),
+            author=discord.EmbedAuthor(
+                name=ctx.author.name,
+                icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
+            ),
+            thumbnail=ctx.author.avatar.url if ctx.author.avatar else None,
+        )
+        embed.description += (
+            "\n\nThats right, my main mission is to serve you with as much "
+            "cheesecake as I can. Check out my amazing /help command to find "
+            "out what I can do for you!"
+        )
+        embed.add_field(
+            name="Creator",
+            value=f"I have been developed by {app_info.owner}.",
+            inline=False,
+        )
+        embed.add_field(
+            name="Open Source",
+            value="I was made using Pycord, a Discord API Wrapper for Python. "
+                  "My code is publicly available on GitHub. Feel free to "
+                  "review and contribute! 🙂",
+                  inline=False,
+        )
+        embed.add_field(
+            name="Clip Art",
+            value="Some clip art you find in this Bot is provided by "
+                  "[clipground.com](https://clipground.com). This includes my "
+                  "profile picture!"
+        )
+        await ctx.respond(
+            embed=embed,
+            view=views.MultiLinkView(
+                urls=[
+                    "https://example.com",
+                    "https://github.com/NotYou404/cheesebot",
+                ],
+                texts=["Discord Support Server", "GitHub Repo"],
+            )
+        )
+
     def presences_gen(self):
         while True:
             for presence in self.presences:
