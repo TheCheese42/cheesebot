@@ -29,3 +29,8 @@ __pycache__/
 # nuitka
 *.build/
 *.dist/
+
+# archives
+*.zip
+*.rar
+*.7z

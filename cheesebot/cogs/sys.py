@@ -1,16 +1,19 @@
+import contextlib
+import platform
 import sys
+import time
 
 import data
 import discord
+import psutil
 import templates
 import views
 from bot import BOT
 from discord import utils
 from discord.ext import commands, tasks
 from logger import LOGGER
-import platform
-import time
-import psutil
+import cutils
+import builtins
 
 
 def get_size(bytes, suffix="B"):
@@ -302,6 +305,85 @@ class Sys(discord.Cog):
                 texts=["Discord Support Server", "GitHub Repo"],
             )
         )
+
+    @discord.slash_command(
+        name="eval",
+        description="Evaluate a Python expression",
+    )
+    @discord.option(
+        name="expression",
+        description="A valid Python expression",
+        type=str,
+    )
+    @discord.option(
+        name="exec",
+        description="If True, use exec instead of eval.",
+        type=bool,
+        required=False,
+        default=False,
+    )
+    @commands.is_owner()
+    async def eval_(
+        self,
+        ctx: discord.ApplicationContext,
+        expression: str,
+        exec: bool = False,
+    ):
+        oc = cutils.OutputCollector()
+        error, return_value = None, None
+        with contextlib.redirect_stdout(oc):
+            try:
+                before = time.time()
+                if exec:
+                    builtins.exec(expression)
+                else:
+                    return_value = eval(expression)
+                after = time.time()
+                ms = int(round(after - before, 3) * 1000)
+            except Exception as e:
+                error = f"{type(e).__name__}: {e}"
+        stdout_content = "".join(oc.content)
+        if error:
+            embed_template = templates.FailureEmbed
+        else:
+            embed_template = templates.SuccessEmbed
+        embed = embed_template(
+            title="Eval result",
+            timestamp=utils.utcnow(),
+            author=discord.EmbedAuthor(
+                name=ctx.author.name,
+                icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
+            ),
+        )
+        embed.add_field(
+            name="Input Expression",
+            value=cutils.le_1024(cutils.codeblockify(expression)),
+            inline=False,
+        )
+        if return_value:
+            embed.add_field(
+                name="Return value",
+                value=cutils.le_1024(cutils.codeblockify(return_value)),
+                inline=False,
+            )
+        if stdout_content:
+            embed.add_field(
+                name="Stdout",
+                value=cutils.le_1024(cutils.codeblockify(stdout_content)),
+                inline=False,
+            )
+        if error:
+            embed.add_field(
+                name="Exception",
+                value=cutils.le_1024(cutils.codeblockify(error)),
+                inline=False,
+            )
+        try:
+            footer = f"Eval took {ms}ms"
+        except UnboundLocalError:
+            footer = "Eval did not complete"
+        embed.set_footer(text=footer)
+        await ctx.respond(embed=embed)
 
     def presences_gen(self):
         while True:

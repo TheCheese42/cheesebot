@@ -72,3 +72,22 @@ The bot is NOT making use of localized slash commands. This is because people wi
 ## Voice Support
 
 For voice support to work you have to create a `lib/` folder in the projects root directory. This folder should contain an ffmpeg binary, called `ffmpeg` (or `ffmpeg.exe` on Windows). Also make sure libopus is installed on your system.
+
+## Required Permissions
+
+The Bots requires following permissions to work properly:
+
+### Text Permissions
+
+- Send Messages
+- Manage Messages
+- Embed Links
+- Attach Files
+- Use External Emojis
+- Add Reactions
+- Use Slash Commands
+
+### Voice Permissions
+
+- Connect
+- Speak
