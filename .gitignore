@@ -1,5 +1,6 @@
 # IMPORTANT: Discord bot token
 .token
+.env
 
 # Log
 latest.log
