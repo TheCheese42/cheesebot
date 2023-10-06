@@ -1,10 +1,11 @@
-import discord
-import data
-from discord import utils
-import cutils
 import asyncio
-from logger import LOGGER
 from typing import Any
+
+import cutils
+import data
+import discord
+from discord import utils
+from logger import LOGGER
 
 
 async def send_lyrics(

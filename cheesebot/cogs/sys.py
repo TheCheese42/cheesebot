@@ -178,18 +178,18 @@ class Sys(discord.Cog):
         name="ping",
         description="Test the Bot Latency.",
     )
-    async def ping(self, ctx: discord.ApplicationContext):
+    async def ping(self, ctx: discord.ApplicationContext) -> None:
         start_time = time.time()
         message = await ctx.respond("Testing Ping...")
         end_time = time.time()
         bot_latency = round(self.bot.latency * 1000)
         api_latency = round((end_time - start_time) * 1000)
         if bot_latency + api_latency >= 660:
-            color = 0x09FF00
-        elif bot_latency + api_latency >= 800:
             color = 0xFF6200
-        else:
+        elif bot_latency + api_latency >= 800:
             color = 0xDE0000
+        else:
+            color = 0x09FF00
         embed = discord.Embed(
             title="Pong!", color=color, timestamp=utils.utcnow()
         )

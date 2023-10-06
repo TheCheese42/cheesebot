@@ -55,9 +55,15 @@ python3 -m pip install -U pip
 python3 -m pip install -r requirements.txt
 ```
 
-### Step 3: Add you Token
+### Step 3: Add your Token and database access
 
-Create a `.token` file in the projects root directory and paste your bot token there.
+Create a `.env` file in the projects root directory and populate it with the following keys:
+
+```txt
+TOKEN = YOUR_BOT_TOKEN
+MYSQL_USERNAME = YOUR_MYSQL_USERNAME
+MYSQL_PASSWORD = YOUR_MYSQL_PASSWORD
+```
 
 ### Step 4: Run the Bot
 

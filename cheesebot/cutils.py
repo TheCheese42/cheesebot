@@ -20,10 +20,7 @@ def get_source(title: str) -> discord.FFmpegPCMAudio:
     :returns: The audio source object.
     :rtype: discord.FFmpegPCMAudio
     """
-    return discord.FFmpegPCMAudio(
-        str(expand_audio_path(title)),
-        executable=str(Path(__file__).parent.parent / "lib" / "ffmpeg")
-    )
+    return discord.FFmpegPCMAudio(str(expand_audio_path(title)))
 
 
 async def send_voice_playback_error(
