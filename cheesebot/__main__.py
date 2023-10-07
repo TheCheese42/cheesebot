@@ -1,21 +1,30 @@
 import asyncio
 import logging
+import os
 import sys
 from pathlib import Path
+from typing import Optional
 
-from bot import CheeseBot
 import bot
+from bot import CheeseBot
+from dotenv import load_dotenv
 from logger import LOGGER
 
 
-def load_token() -> str:
-    with open(
-        Path(__file__).parent.parent / ".token", "r", encoding="utf-8"
-    ) as fp:
-        return fp.read().strip()
+def load_token() -> Optional[str]:
+    return os.getenv("BOT_TOKEN")
 
 
 async def main():
+    # Load .env
+    try:
+        load_dotenv(Path(__file__).parent.parent / ".env")
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            "Can't find .env file. Information on adding this can be found in "
+            "the README of the bot's GitHub repo."
+        )
+
     # Setup logging
     LOGGER.setLevel(logging.INFO)
     handler = logging.FileHandler(
