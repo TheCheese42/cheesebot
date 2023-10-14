@@ -15,7 +15,7 @@ def load_token() -> Optional[str]:
     return os.getenv("BOT_TOKEN")
 
 
-async def main():
+async def main() -> None:
     # Load .env
     try:
         load_dotenv(Path(__file__).parent.parent / ".env")
@@ -45,10 +45,11 @@ async def main():
     cogs = (
         "sys",
         "songs",
+        "utils",
     )
     if len(sys.argv) >= 2:
-        cogs = sys.argv[1].split(",")
-        cogs = [i.strip() for i in cogs if i]
+        cogs = sys.argv[1].split(",")  # type: ignore
+        cogs = [i.strip() for i in cogs if i]  # type: ignore
 
     cheese_bot = CheeseBot(cogs)
     bot.BOT = cheese_bot
