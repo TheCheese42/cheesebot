@@ -19,9 +19,10 @@ class Utils(discord.Cog):
         self.bot = bot
         self.emoji = "🛠"
 
-    @discord.slash_command(
+    @slash_command(
         name="ping",
         description="Test the Bot Latency.",
+        help="Test bot latency, as well as message latency by measuring the time it takes to send the embed.",
     )
     async def ping(self, ctx: discord.ApplicationContext) -> None:
         start_time = time.time()
@@ -57,9 +58,10 @@ class Utils(discord.Cog):
         embed.set_footer(text=f"Pong requested by {ctx.author.name}")
         await message.edit(content=None, embed=embed)
 
-    @discord.slash_command(
+    @slash_command(
         name="about",
         description="About the Bot.",
+        help="Display information about CheeseBot including a link to it's support server and GitHub repository.",
     )
     async def about(self, ctx: discord.ApplicationContext):
         app_info = await self.bot.application_info()
@@ -113,17 +115,17 @@ class Utils(discord.Cog):
         name="embed",
         description="Send and manage embeds",
     )
-    embed_group.help = "..."
+    embed_group.help = "Provides a set of commands to send and edit customizable embeds."
 
     @group_slash_command(
         group=embed_group,
-        name="embed",
+        name="post",
         description="Post an embed",
-        help="...",
+        help="Send an embed specified using [discord's official JSON format](). To generate those JSON strings a visualizer like [EmbedBuilder.com](https://embedbuilder.com) can be used.",
     )
     @discord.option(
         name="json_data",
-        description="JSON representation of the embed. See `/help embed`",
+        description="JSON representation of the embed. See `/help embed.post`",
         type=str,
     )
     @discord.option(
@@ -134,13 +136,12 @@ class Utils(discord.Cog):
     @discord.default_permissions(
         manage_messages=True,
     )
-    async def send(
+    async def post(
         self,
         ctx: discord.ApplicationContext,
         json_data: str,
         channel: Optional[discord.TextChannel] = None
     ):
-        """https://embedbuilder.com"""
         try:
             embed = discord.Embed.from_dict(json.loads(json_data))
         except Exception as e:
