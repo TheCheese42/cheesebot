@@ -190,9 +190,10 @@ class Sys(discord.Cog):
         else:
             await send_error_embed()
 
-    @discord.slash_command(
+    @slash_command(
         name="system",
-        description="Useful system information about the Bot's server."
+        description="Useful system information about the Bot's server.",
+        help="Fetch current system informations about the machine the bot is running on. This includes system version and release, processor information and usage and memory information and usage.",
     )
     async def system(self, ctx: discord.ApplicationContext):
         uname = platform.uname()
@@ -234,9 +235,10 @@ class Sys(discord.Cog):
         )
         await ctx.respond(embed=embed)
 
-    @discord.slash_command(
+    @slash_command(
         name="eval",
         description="Evaluate a Python expression",
+        help="Evaluate any valid Python expression using the command's lexical scope. This includes a `self: discord.Cog`, a `ctx: discord.ApplicationContext` and all imported modules. Any stdlib modules as well as anything specified in the bot's dependency tree can be installed can be imported as well.\n\nIf the `exec` parameter is `True` the expression will be evaluated using the `exec()` function instead of `eval()`. This allows multi-line evaluations and more complex constructs.",
     )
     @discord.option(
         name="expression",
