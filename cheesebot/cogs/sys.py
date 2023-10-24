@@ -14,6 +14,7 @@ from discord.ext import commands, tasks
 from logger import LOGGER
 import cutils
 import builtins
+from cutils import slash_command
 
 
 def get_size(bytes, suffix="B"):
@@ -67,9 +68,13 @@ class Sys(discord.Cog):
         )
         self.bot.status = status
 
-    @discord.slash_command(
+    @slash_command(
         name="reload",
         description="Hot-reload all or selected cogs.",
+        help="Reload all or just a selected Cog. This has the advantage over "
+             "completely restarting the bot, that it won't close the gateway, "
+             "preventing to get rate limited. However, non-cog modules and "
+             "newly added slash commands won't be reloaded or registered.",
     )
     @discord.option(
         name="module",
@@ -117,9 +122,11 @@ class Sys(discord.Cog):
                 )
         await message.edit(embed=embed)
 
-    @discord.slash_command(
+    @slash_command(
         name="shutdown",
         description="Shut the Bot down.",
+        help="Shut down the bot by unloading every Cog and exiting using "
+             "status code 0.",
     )
     @commands.is_owner()
     async def shutdown(self, ctx: discord.ApplicationContext):
@@ -145,16 +152,13 @@ class Sys(discord.Cog):
         await message.edit(embed=embed)
         sys.exit(0)
 
-    @BOT.event
+    @discord.Cog.listener()
     async def on_application_command_error(  # type: ignore
+        self,
         ctx: discord.ApplicationContext,
         error: discord.DiscordException,
     ):
-        if isinstance(error, commands.NotOwner):
-            await ctx.respond(
-                "Only my dear creator can do that.", ephemeral=True
-            )
-        else:
+        async def send_error_embed():
             embed = templates.FailureEmbed(
                 title="Error running command...",
                 description=(
@@ -173,6 +177,18 @@ class Sys(discord.Cog):
             )
             LOGGER.exception(error)
             raise error
+
+        if isinstance(error, commands.NotOwner):
+            await ctx.respond(
+                "Only my dear creator can do that.", ephemeral=True
+            )
+        elif isinstance(error, discord.ApplicationCommandInvokeError):
+            if isinstance(error.original, discord.Forbidden):
+                pass
+            else:
+                await send_error_embed()
+        else:
+            await send_error_embed()
 
     @discord.slash_command(
         name="system",

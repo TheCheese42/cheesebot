@@ -1,10 +1,70 @@
 from pathlib import Path
-from typing import Generator, Optional
+from typing import Generator, Optional, Callable
 
 import discord
 import templates
 import views
 from discord import utils
+
+
+def slash_command(
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    help: Optional[str] = None,
+    **kwargs,
+):
+    if name:
+        kwargs["name"] = name
+    if description:
+        kwargs["description"] = description
+    if help:
+        kwargs["help"] = help
+    return application_command(
+        cls=discord.SlashCommand,
+        **kwargs,
+    )
+
+
+def application_command(cls=discord.SlashCommand, **attrs):
+    def decorator(func: Callable) -> cls:
+        if isinstance(func, discord.ApplicationCommand):
+            func = func.callback
+        elif not callable(func):
+            raise TypeError(
+                "func needs to be a callable or a subclass of "
+                "ApplicationCommand."
+            )
+        if "help" in attrs:
+            help = attrs["help"]
+            del attrs["help"]
+        else:
+            help = None
+        cmd = cls(func, **attrs)
+        cmd.help = help
+        return cmd
+
+    return decorator
+
+
+def group_slash_command(
+    group: discord.SlashCommandGroup,
+    name: str = None,
+    description: str = None,
+    help: str = None,
+    **kwargs,
+):
+    if name:
+        kwargs["name"] = name
+    if description:
+        kwargs["description"] = description
+
+    def decorator(func: Callable) -> discord.SlashCommand:
+        command = discord.SlashCommand(func, parent=group, **kwargs)
+        command.help = help
+        group.add_command(command)
+        return command
+
+    return decorator
 
 
 def expand_audio_path(title: str | Path) -> Path:

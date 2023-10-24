@@ -1,10 +1,13 @@
+import json
 import time
+from typing import Optional
 
 import discord
 import templates
 import views
 from discord import utils
 from logger import LOGGER
+from cutils import slash_command, group_slash_command
 
 
 class Utils(discord.Cog):
@@ -68,7 +71,9 @@ class Utils(discord.Cog):
                 name=ctx.author.name,
                 icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
             ),
-            thumbnail=ctx.author.avatar.url if ctx.author.avatar else None,
+            thumbnail=(
+                ctx.bot.user.avatar.url if ctx.bot.user.avatar else None  # type: ignore  # noqa
+            ),
         )
         embed.description += (
             "\n\nThats right, my main mission is to serve you with as much "
@@ -102,6 +107,73 @@ class Utils(discord.Cog):
                 ],
                 texts=["Discord Support Server", "GitHub Repo"],
             )
+        )
+
+    embed_group = discord.SlashCommandGroup(
+        name="embed",
+        description="Send and manage embeds",
+    )
+    embed_group.help = "..."
+
+    @group_slash_command(
+        group=embed_group,
+        name="embed",
+        description="Post an embed",
+        help="...",
+    )
+    @discord.option(
+        name="json_data",
+        description="JSON representation of the embed. See `/help embed`",
+        type=str,
+    )
+    @discord.option(
+        name="channel",
+        description="The channel to send the embed to",
+        type=discord.TextChannel,
+    )
+    @discord.default_permissions(
+        manage_messages=True,
+    )
+    async def send(
+        self,
+        ctx: discord.ApplicationContext,
+        json_data: str,
+        channel: Optional[discord.TextChannel] = None
+    ):
+        """https://embedbuilder.com"""
+        try:
+            embed = discord.Embed.from_dict(json.loads(json_data))
+        except Exception as e:
+            await ctx.respond(
+                "I'm sorry but your provided json was invalid. Please check "
+                "you copied everything and actually exported as JSON.",
+                view=views.TextResponseButtonView(
+                    label="See error",
+                    response_text=f"{e.__class__.__name__}: {e}",
+                )
+            )
+            return
+        if channel is None:
+            channel = ctx.channel
+        try:
+            await channel.send(embed=embed)
+        except discord.HTTPException as e:
+            if e.code == 50033:
+                await ctx.respond(
+                        "I am not allowed to send the embed. Check my "
+                        "permissions!"
+                    )
+            elif e.code == 50035:
+                await ctx.respond(
+                        "Your JSON seems to be malformed.",
+                        view=views.TextResponseButtonView(
+                            label="Get error",
+                            response_text=f"{e.__class__.__name__}: {e}"
+                        )
+                    )
+        await ctx.respond(
+            f"Embed sent to {channel.mention}!",
+            delete_after=5,
         )
 
 
