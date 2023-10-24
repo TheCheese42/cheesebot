@@ -3,6 +3,7 @@ from typing import Any
 
 import cutils
 import data
+from cutils import group_slash_command
 import discord
 from discord import utils
 from logger import LOGGER
@@ -85,10 +86,16 @@ class Songs(discord.Cog):
                     "channel.",
         guild_only=True,
     )
+    song_help = "Play {title}, by {artist}. The song will play in a voice channel while the text is sent in the text channel, where the command was issued."
 
-    @song_group.command(
+    @group_slash_command(
+        group=song_group,
         name="stillalive",
         description="Stillalive from the Portal Game Series.",
+        help=song_help.format(
+            title="StillAlive",
+            artist="Ellen McLain and Jonathan Coulton, from the Portal video games series soundtrack",
+        ),
     )
     async def stillalive(self, ctx: discord.ApplicationContext):
         song = "stillalive"
@@ -100,7 +107,7 @@ class Songs(discord.Cog):
         )[song]
         messages: list[Any] = []
         messages.append(await ctx.respond(
-            "### StillAlive from Portal, by Ellen McLain and Jonathan Coulton"
+            "### StillAlive from Ellen McLain and Jonathan Coulton"
         ))
         for i, (text, time) in enumerate(lyrics):
             if i == 1:  # Start playing before second line
