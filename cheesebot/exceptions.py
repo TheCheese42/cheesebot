@@ -4,3 +4,11 @@ class CheeseBotException(Exception):
 
 class UnprivilegedException(CheeseBotException):
     pass
+
+
+class DataBaseException(CheeseBotException):
+    pass
+
+
+class MalformedColumn(DataBaseException):
+    pass

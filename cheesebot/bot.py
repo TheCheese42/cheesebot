@@ -1,6 +1,9 @@
+import os
 from typing import Collection, Optional
 
 import discord
+from database.database import CheeseDatabase
+from lang import LangManager
 
 BOT: Optional["CheeseBot"] = None
 
@@ -16,6 +19,16 @@ class CheeseBot(discord.Bot):
             intents=intents,
         )
         self.cogs_to_load = cogs
+
+        self.lang = LangManager()
+
+        self.db = CheeseDatabase(
+            host=os.getenv("MYSQL_HOST"),
+            user=os.getenv("MYSQL_USERNAME"),
+            password=os.getenv("MYSQL_PASSWORD"),
+            database=os.getenv("MYSQL_DATABASE"),
+            port=os.getenv("MYSQL_PORT")
+        )
 
     def setup(self):
         for cog in self.cogs_to_load:

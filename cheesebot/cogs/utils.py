@@ -5,9 +5,10 @@ from typing import Optional
 import discord
 import templates
 import views
+from bot import CheeseBot
+from cutils import group_slash_command, slash_command
 from discord import utils
 from logger import LOGGER
-from cutils import slash_command, group_slash_command
 
 
 class Utils(discord.Cog):
@@ -15,7 +16,7 @@ class Utils(discord.Cog):
     Module for system tasks that won't be seen by the end user and
     administrators.
     """
-    def __init__(self, bot: discord.Bot):
+    def __init__(self, bot: CheeseBot):
         self.bot = bot
         self.emoji = "🛠"
 
@@ -30,10 +31,10 @@ class Utils(discord.Cog):
         end_time = time.time()
         bot_latency = round(self.bot.latency * 1000)
         api_latency = round((end_time - start_time) * 1000)
-        if bot_latency + api_latency >= 660:
-            color = 0xFF6200
-        elif bot_latency + api_latency >= 800:
+        if bot_latency + api_latency >= 800:
             color = 0xDE0000
+        elif bot_latency + api_latency >= 660:
+            color = 0xFF6200
         else:
             color = 0x09FF00
         embed = discord.Embed(
@@ -121,7 +122,7 @@ class Utils(discord.Cog):
         group=embed_group,
         name="post",
         description="Post an embed",
-        help="Send an embed specified using [discord's official JSON format](). To generate those JSON strings a visualizer like [EmbedBuilder.com](https://embedbuilder.com) can be used.",
+        help="Send an embed specified using [discord's official JSON format](https://discord.com/developers/docs/resources/channel#embed-object). To generate those JSON strings a visualizer like [EmbedBuilder.com](https://embedbuilder.com) can be used.",
     )
     @discord.option(
         name="json_data",
@@ -178,10 +179,10 @@ class Utils(discord.Cog):
         )
 
 
-def setup(bot: discord.Bot):
+def setup(bot: CheeseBot):
     LOGGER.info("[SETUP] utils")
     bot.add_cog(Utils(bot))
 
 
-def teardown(bot: discord.Bot):
+def teardown(bot: CheeseBot):
     LOGGER.info("[TEARDOWN] utils")

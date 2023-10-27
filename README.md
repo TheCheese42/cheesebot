@@ -1,7 +1,7 @@
 # Cheese Bot
 
 The most cheesiest bot on the Planet!
-Despite not having the ability to bypass earth's boundaries, I'll try my best serving you a lot of cheesecake.
+Despite not having the ability to bypass earth's boundaries, I'll try my best serving you lots of cheesecake.
 
 Cheese bot is a several purpose Discord Bot written in Python, using the Pycord API Wrapper.
 It was created with the intention to deliver way more cheesecake to Discord!
@@ -19,7 +19,7 @@ cd cheesebot
 
 For Windows:
 
-```pwsh
+```powershell
 git clone "https://github.com/NotYou404/cheesebot"
 cd cheesebot
 ```
@@ -28,9 +28,9 @@ Or download the ZIP archive at the top right of this page.
 
 ### Step 2: Installing dependencies
 
-Install Python (recommended version: 3.11.x)
+Install Python (recommended version: 3.11 or higher)
 
-- <https://www.python.org/downloads/>
+- <https://www.python.org/downloads>
 
 Create and activate a Virtual Environment (optional)
 
@@ -43,11 +43,12 @@ source .venv/bin/activate
 
 For Windows:
 
-```pwsh
+```powershell
 python3 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
+\
 Install dependencies:
 
 ```shell
@@ -60,9 +61,12 @@ python3 -m pip install -r requirements.txt
 Create a `.env` file in the projects root directory and populate it with the following keys:
 
 ```txt
-TOKEN = YOUR_BOT_TOKEN
-MYSQL_USERNAME = YOUR_MYSQL_USERNAME
-MYSQL_PASSWORD = YOUR_MYSQL_PASSWORD
+TOKEN = <YOUR_BOT_TOKEN>
+MYSQL_HOST = <DATABASE_IP_ADDRESS>
+MYSQL_PORT = <DATABASE_PORT>
+MYSQL_USERNAME = <MYSQL_USERNAME>
+MYSQL_PASSWORD = <MYSQL_PASSWORD>
+MYSQL_DATABASE = <DATABASE_NAME>
 ```
 
 ### Step 4: Run the Bot
@@ -77,7 +81,7 @@ The bot is NOT making use of localized slash commands. This is because people wi
 
 ## Voice Support
 
-For voice support to work you have to create a `lib/` folder in the projects root directory. This folder should contain an ffmpeg binary, called `ffmpeg` (or `ffmpeg.exe` on Windows). Also make sure libopus is installed on your system.
+For voice support to work, `ffmpeg` should be installed and on PATH. Also make sure `libopus` is installed on your system.
 
 ## Required Permissions
 

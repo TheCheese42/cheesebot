@@ -1,20 +1,20 @@
+import builtins
 import contextlib
 import platform
 import sys
 import time
 
+import cutils
 import data
 import discord
 import psutil
 import templates
 import views
-from bot import BOT
+from bot import BOT, CheeseBot
+from cutils import slash_command
 from discord import utils
 from discord.ext import commands, tasks
 from logger import LOGGER
-import cutils
-import builtins
-from cutils import slash_command
 
 
 def get_size(bytes, suffix="B"):
@@ -32,11 +32,8 @@ def get_size(bytes, suffix="B"):
 
 
 class Sys(discord.Cog):
-    """
-    Module for system tasks that won't be seen by the end user and
-    administrators.
-    """
-    def __init__(self, bot: discord.Bot):
+    """sys_desc"""
+    def __init__(self, bot: CheeseBot):
         self.bot = bot
         self.emoji = "🔌"
         self.hidden = True
@@ -71,10 +68,7 @@ class Sys(discord.Cog):
     @slash_command(
         name="reload",
         description="Hot-reload all or selected cogs.",
-        help="Reload all or just a selected Cog. This has the advantage over "
-             "completely restarting the bot, that it won't close the gateway, "
-             "preventing to get rate limited. However, non-cog modules and "
-             "newly added slash commands won't be reloaded or registered.",
+        help="reload_help",
     )
     @discord.option(
         name="module",
@@ -85,15 +79,17 @@ class Sys(discord.Cog):
     )
     @commands.is_owner()
     async def reload(self, ctx: discord.ApplicationContext, module: str):
+        langcode = self.bot.db.get_langcode(ctx.guild_id)
         cogs_to_reload: str | list[str] = module or list(self.bot.cogs.keys())
 
         if isinstance(cogs_to_reload, str):
             cogs_to_reload = [cogs_to_reload]
 
         embed = templates.InfoEmbed(
-            title="Reloading...",
-            description="Reloading modules: "
-                        f"{', '.join(cogs_to_reload).lower()}",
+            title=self.bot.lang.get("reload_embed_title", langcode),
+            description=self.bot.lang.get(
+                "reload_embed_description", langcode
+            ).format(modules=', '.join(cogs_to_reload).lower()),
             timestamp=utils.utcnow(),
             author=discord.EmbedAuthor(
                 name=ctx.author.name,
@@ -106,17 +102,23 @@ class Sys(discord.Cog):
                 self.bot.reload_extension(f"cogs.{cog.lower()}")
             except discord.ExtensionNotLoaded:
                 embed = templates.FailureEmbed(
-                    title="Error Reloading!",
-                    description=f"The requested module `{cog.lower()}` does "
-                                "not exist.",
+                    title=self.bot.lang.get(
+                        "reload_error_embed_title", langcode
+                    ),
+                    description=self.bot.lang.get(
+                        "reload_error_embed_description", langcode
+                    ).format(module=cog.lower()),
                     timestamp=utils.utcnow(),
                     author=embed.author
                 )
             else:
                 embed = templates.SuccessEmbed(
-                    title="Reloaded!",
-                    description="Reloaded modules: "
-                                f"{', '.join(cogs_to_reload).lower()}",
+                    title=self.bot.lang.get(
+                        "reload_success_embed_title", langcode
+                    ),
+                    description=self.bot.lang.get(
+                        "reload_success_embed_description", langcode
+                    ).format(modules=', '.join(cogs_to_reload).lower()),
                     timestamp=utils.utcnow(),
                     author=embed.author,
                 )
@@ -125,14 +127,16 @@ class Sys(discord.Cog):
     @slash_command(
         name="shutdown",
         description="Shut the Bot down.",
-        help="Shut down the bot by unloading every Cog and exiting using "
-             "status code 0.",
+        help="shutdown_help",
     )
     @commands.is_owner()
     async def shutdown(self, ctx: discord.ApplicationContext):
+        langcode = self.bot.db.get_langcode(ctx.guild_id)
         embed = templates.InfoEmbed(
-            title="Shutting down...",
-            description="Unloading modules...",
+            title=self.bot.lang.get("shutdown_embed_title", langcode),
+            description=self.bot.lang.get(
+                "shutdown_embed_description", langcode
+            ),
             timestamp=utils.utcnow(),
             author=discord.EmbedAuthor(
                 name=ctx.author.name,
@@ -143,9 +147,10 @@ class Sys(discord.Cog):
         for cog in tuple(self.bot.cogs.keys()):
             self.bot.unload_extension(f"cogs.{cog.lower()}")
         embed = templates.SuccessEmbed(
-            title="Shut down",
-            description=f"{self.bot.user.name} has been shut down "  # type: ignore  # noqa
-                        "successfully.",
+            title=self.bot.lang.get("shutdown_success_embed_title", langcode),
+            description=self.bot.lang.get(
+                "shutdown_success_embed_description", langcode
+            ),
             timestamp=utils.utcnow(),
             author=embed.author,
         )
@@ -238,7 +243,14 @@ class Sys(discord.Cog):
     @slash_command(
         name="eval",
         description="Evaluate a Python expression",
-        help="Evaluate any valid Python expression using the command's lexical scope. This includes a `self: discord.Cog`, a `ctx: discord.ApplicationContext` and all imported modules. Any stdlib modules as well as anything specified in the bot's dependency tree can be installed can be imported as well.\n\nIf the `exec` parameter is `True` the expression will be evaluated using the `exec()` function instead of `eval()`. This allows multi-line evaluations and more complex constructs.",
+        help="Evaluate any valid Python expression using the command's "
+             "lexical scope. This includes a `self: discord.Cog`, a "
+             "`ctx: discord.ApplicationContext` and all imported modules. "
+             "Any stdlib modules as well as anything specified in the bot's "
+             "dependency tree can be installed can be imported as well.\n\nIf "
+             "the `exec` parameter is `True` the expression will be evaluated "
+             "using the `exec()` function instead of `eval()`. This allows "
+             "multi-line evaluations and more complex constructs.",
     )
     @discord.option(
         name="expression",
@@ -332,10 +344,10 @@ class Sys(discord.Cog):
             raise NotImplementedError(option)
 
 
-def setup(bot: discord.Bot):
+def setup(bot: CheeseBot):
     LOGGER.info("[SETUP] sys")
     bot.add_cog(Sys(bot))
 
 
-def teardown(bot: discord.Bot):
+def teardown(bot: CheeseBot):
     LOGGER.info("[TEARDOWN] sys")

@@ -43,8 +43,10 @@ async def main() -> None:
 
     # Construct the bot
     cogs = (
-        "sys",
+        "fun",
+        "server",
         "songs",
+        "sys",
         "utils",
     )
     if len(sys.argv) >= 2:
@@ -66,7 +68,10 @@ if __name__ == "__main__":
             for cog in tuple(bot.BOT.cogs.keys()):
                 bot.BOT.unload_extension(f"cogs.{cog.lower()}")
         LOGGER.info("[SHUTDOWN] Successfully shut down.")
+        bot.BOT.db.close()
         sys.exit(0)
     except Exception:
         LOGGER.exception("Uncatched Exception occurred.")
         raise
+    finally:
+        bot.BOT.db.close()

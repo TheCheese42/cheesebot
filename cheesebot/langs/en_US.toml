@@ -1,0 +1,61 @@
+[meta]
+langcode = "en_US"
+name = "English"
+
+[strings]
+# fun
+fun_desc = "Funny commands, tools and minigames."
+# nitro
+nitro_help = "Claim your free Discord Nitro! Sponsored by CheeseBot for new and loyal users."
+nitro_embed_title = "You've been gifted a subscription!"
+nitro_embed_subscription = "**CheeseBot** gifted you nitro for **1 month!**"
+nitro_view_button_claim = "Claim"
+nitro_view_wrong_user = "This isn't your Nitro."
+
+# server
+server_desc = "Server administration tools."
+# language_group
+language_group_help = "Manage the language CheeseBot uses in this server."
+# language_set
+language_set_help = "Set the language using an ISO specifier consisting of `language_REGION`, e.g. `en_US`."
+language_set_not_available = "Language {language} is not available."
+language_set_success = "Changed server-wide language to `{language}`."
+# language_get
+language_get_help = "Get the server-wide active language's ISO specifier consisting of `language_REGION`, e.g. `en_US`."
+language_get_message = "The current language code is `{lang_code}`."
+# language_reset
+language_reset_help = "Reset the server-wide language to English (with code `en_US`)."
+language_reset_message = "Changed server-wide language to `{language}`."
+
+# songs
+songs_desc = "Play songs while typing the lyrics in a text channel!"
+# song_group
+song_group_help = "Play a song with lyrics."
+# song_stillalive
+song_stillalive_help = "Play StillAlive, by Ellen McLain and Jonathan Coulton, from the Portal video games series soundtrack. The song will play in a voice channel while the text is sent in the text channel where the command was issued."
+
+# sys
+sys_desc = "Module for system tasks that won't be seen by the end user and administrators."
+# reload
+reload_help = "Reload all or just a selected Cog. This has the advantage over completely restarting the bot, that it won't close the gateway, preventing to get rate limited. However, non-cog modules and newly added slash commands won't be reloaded or registered."
+reload_embed_title = "Reloading..."
+reload_embed_description = "Reloading modules: {modules}"
+reload_error_embed_title = "Error Reloading!"
+reload_error_embed_description = "The requested module `{module}` does not exist."
+reload_success_embed_title = "Reloaded!"
+reload_success_embed_description = "Reloaded modules: {modules}"
+# shutdown
+shutdown_help = "Shut down the bot by unloading every Cog and exiting using status code 0."
+shutdown_embed_title = "Shutting down..."
+shutdown_embed_description = "Unloading modules..."
+shutdown_success_embed_title = "Shut down"
+shutdown_success_embed_description = "CheeseBot shut down successfully."
+
+# functions
+# join_user_voice_channel
+juvc_server_only = "This only works in a Server."
+juvc_user_not_in_voice_channel = "You have to be in a voice channel."
+juvc_user_deaf = "Please make sure you aren't deafened."
+juvc_already_playing = "I'm already playing something in {voice_channel_mention}!"
+juvc_already_in_channel = "I'm already in a voice channel with you."
+juvc_joined_channel = "Joined your voice channel."
