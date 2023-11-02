@@ -4,6 +4,7 @@ from typing import Collection, Optional
 import discord
 from database.database import CheeseDatabase
 from lang import LangManager
+from logger import LOGGER
 
 BOT: Optional["CheeseBot"] = None
 
@@ -22,6 +23,7 @@ class CheeseBot(discord.Bot):
 
         self.lang = LangManager()
 
+        LOGGER.info("Establishing database connection.")
         self.db = CheeseDatabase(
             host=os.getenv("MYSQL_HOST"),
             user=os.getenv("MYSQL_USERNAME"),

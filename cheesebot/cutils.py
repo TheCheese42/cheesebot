@@ -116,10 +116,35 @@ def codeblockify(code: str, lang: Optional[str] = None) -> str:
     return f"```{lang or ''}\n{code}\n```"
 
 
-def le_1024(text: str, replace: Optional[str] = None) -> str:
-    if replace is None:
-        replace = "*Too long to display*"
-    return text if len(text) <= 1024 else replace
+def le_1024(
+    text: str,
+    cap: bool = True,
+    end: str = "",
+    replace: Optional[str] = None,
+) -> str:
+    """
+    Takes a string and checks if it's longer than 1024 characters.
+    If yes, if `cap` is True it will cut off until the 1024, otherwise it will
+    replace the string with `replace`. If `replace` is None, a default will
+    be used.
+
+    :param text: The text to be checked
+    :type text: str
+    :param cap: Wether we shall cap or replace the string, defaults to True
+    :type cap: bool, optional
+    :param end: Something that should always be at the end, if cap is True,
+    for example three backticks for markdown codeblocks
+    :param replace: Text to replace if cap is False, defaults to None
+    :type replace: Optional[str], optional
+    :return: The eventually modified string
+    :rtype: str
+    """
+    if len(text) <= 1024:
+        return text
+    if cap:
+        append_length = 3 + len(end)
+        return text[:1024 - append_length] + end + "..."
+    return replace or "*Too long to display*"
 
 
 class OutputCollector:

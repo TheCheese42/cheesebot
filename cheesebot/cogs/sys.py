@@ -163,21 +163,29 @@ class Sys(discord.Cog):
         ctx: discord.ApplicationContext,
         error: discord.DiscordException,
     ):
+        langcode = self.bot.db.get_langcode(ctx.guild_id)
+        error_string = (
+            f"{error.__class__.__name__}: {error}"
+            if not hasattr(error, "original")
+            else f"{error.original.__class__.__name__}: {error.original}"
+        )
+
         async def send_error_embed():
             embed = templates.FailureEmbed(
-                title="Error running command...",
+                title=self.bot.lang.get("ge_embed_title", langcode),
                 description=(
-                    "An unexpected error occurred when running command "
-                    f"{ctx.command.qualified_name}: `{error}`\n"
-                    "This has been logged and will be fixed soon. If you're "
-                    "experiencing further issues please reach out to us at "
-                    "CheeseBot's support Server. Thank you for understanding!"
+                    self.bot.lang.get("ge_embed_description", langcode).format(
+                        command_name=ctx.command.qualified_name,
+                        error=error_string
+                    )
                 )
             )
             await ctx.respond(
                 embed=embed, view=views.LinkView(
-                    url="https://example.com",
-                    text="Discord Support Server"
+                    url=data.get_data(
+                        "global_strings", data.DataType.JSON
+                    )["support_server_invite"],
+                    text=self.bot.lang.get("ge_view_dcss", langcode),
                 )
             )
             LOGGER.exception(error)
@@ -185,7 +193,8 @@ class Sys(discord.Cog):
 
         if isinstance(error, commands.NotOwner):
             await ctx.respond(
-                "Only my dear creator can do that.", ephemeral=True
+                self.bot.lang.get("error_notowner_message", langcode),
+                ephemeral=True
             )
         elif isinstance(error, discord.ApplicationCommandInvokeError):
             if isinstance(error.original, discord.Forbidden):
@@ -198,9 +207,11 @@ class Sys(discord.Cog):
     @slash_command(
         name="system",
         description="Useful system information about the Bot's server.",
-        help="Fetch current system informations about the machine the bot is running on. This includes system version and release, processor information and usage and memory information and usage.",
+        help="system_help",
     )
     async def system(self, ctx: discord.ApplicationContext):
+        await ctx.defer()
+        langcode = self.bot.db.get_langcode(ctx.guild_id)
         uname = platform.uname()
         system = uname.system
         release = uname.release
@@ -215,42 +226,61 @@ class Sys(discord.Cog):
         available_ram = get_size(svmem.available)
         used_ram_percent = svmem.percent
         embed = templates.InfoEmbed(
-            title="System Information",
+            title=self.bot.lang.get("system_embed_title", langcode),
             timestamp=utils.utcnow(),
             author=discord.EmbedAuthor(
                 name=ctx.author.name,
                 icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
             ),
         )
+        cpu_usage_template = self.bot.lang.get(
+            "system_cpu_usage_template", langcode
+        )
         cpu_usage_str = "\n".join(
-            [f"CPU {i}: {p}%" for i, p in enumerate(cpu_usage, 1)]
+            [cpu_usage_template.format(
+                count=i, percent=p
+            ) for i, p in enumerate(cpu_usage, 1)]
         )
-        embed.add_field(name="System", value=system)
-        embed.add_field(name="Release", value=release)
-        embed.add_field(name="Version", value=version)
-        embed.add_field(name="Processor", value=processor)
-        embed.add_field(name="Physical Cores", value=physical_cores)
-        embed.add_field(name="Total Cores", value=total_cores)
-        embed.add_field(name="CPU Usage", value=f"{cpu_usage_str}")
-        embed.add_field(name="Total RAM", value=total_ram)
-        embed.add_field(name="Available RAM", value=available_ram)
-        embed.add_field(name="Used RAM", value=used_ram)
-        embed.add_field(
-            name="Used RAM Percentage", value=f"{used_ram_percent}%"
-        )
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_system", langcode
+        ), value=system)
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_release", langcode
+        ), value=release)
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_version", langcode
+        ), value=version)
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_processor", langcode
+        ), value=processor)
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_physical_cores", langcode
+        ), value=physical_cores)
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_total_cores", langcode
+        ), value=total_cores)
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_cpu_usage", langcode
+        ), value=f"{cpu_usage_str}")
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_total_ram", langcode
+        ), value=total_ram)
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_available_ram", langcode
+        ), value=available_ram)
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_used_ram", langcode
+        ), value=used_ram)
+        embed.add_field(name=self.bot.lang.get(
+            "system_field_used_ram_percentage", langcode
+        ), value=f"{used_ram_percent}%")
+
         await ctx.respond(embed=embed)
 
     @slash_command(
         name="eval",
         description="Evaluate a Python expression",
-        help="Evaluate any valid Python expression using the command's "
-             "lexical scope. This includes a `self: discord.Cog`, a "
-             "`ctx: discord.ApplicationContext` and all imported modules. "
-             "Any stdlib modules as well as anything specified in the bot's "
-             "dependency tree can be installed can be imported as well.\n\nIf "
-             "the `exec` parameter is `True` the expression will be evaluated "
-             "using the `exec()` function instead of `eval()`. This allows "
-             "multi-line evaluations and more complex constructs.",
+        help="eval_help",
     )
     @discord.option(
         name="expression",
@@ -271,6 +301,7 @@ class Sys(discord.Cog):
         expression: str,
         exec: bool = False,
     ):
+        langcode = self.bot.db.get_langcode(ctx.guild_id)
         oc = cutils.OutputCollector()
         error, return_value = None, None
         with contextlib.redirect_stdout(oc):
@@ -290,7 +321,7 @@ class Sys(discord.Cog):
         else:
             embed_template = templates.SuccessEmbed
         embed = embed_template(
-            title="Eval result",
+            title=self.bot.lang.get("eval_embed_title", langcode),
             timestamp=utils.utcnow(),
             author=discord.EmbedAuthor(
                 name=ctx.author.name,
@@ -298,32 +329,48 @@ class Sys(discord.Cog):
             ),
         )
         embed.add_field(
-            name="Input Expression",
-            value=cutils.le_1024(cutils.codeblockify(expression)),
+            name=self.bot.lang.get(
+                "eval_embed_field_input_expression", langcode
+            ),
+            value=cutils.le_1024(cutils.codeblockify(expression), end="```"),
             inline=False,
         )
         if return_value:
             embed.add_field(
-                name="Return value",
-                value=cutils.le_1024(cutils.codeblockify(return_value)),
+                name=self.bot.lang.get(
+                    "eval_embed_field_return_value", langcode
+                ),
+                value=cutils.le_1024(
+                    cutils.codeblockify(return_value), end="```"
+                ),
                 inline=False,
             )
         if stdout_content:
             embed.add_field(
-                name="Stdout",
-                value=cutils.le_1024(cutils.codeblockify(stdout_content)),
+                name=self.bot.lang.get(
+                    "eval_embed_field_stdout", langcode
+                ),
+                value=cutils.le_1024(
+                    cutils.codeblockify(stdout_content), end="```"
+                ),
                 inline=False,
             )
         if error:
             embed.add_field(
-                name="Exception",
-                value=cutils.le_1024(cutils.codeblockify(error)),
+                name=self.bot.lang.get(
+                    "eval_embed_field_exception", langcode
+                ),
+                value=cutils.le_1024(
+                    cutils.codeblockify(error), end="```"
+                ),
                 inline=False,
             )
         try:
-            footer = f"Eval took {ms}ms"
+            footer = self.bot.lang.get(
+                "eval_embed_footer_complete", langcode
+            ).format(ms=ms)
         except UnboundLocalError:
-            footer = "Eval did not complete"
+            footer = self.bot.lang.get("eval_embed_footer_failure", langcode)
         embed.set_footer(text=footer)
         await ctx.respond(embed=embed)
 

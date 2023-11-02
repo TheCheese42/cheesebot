@@ -2,6 +2,7 @@ import json
 import time
 from typing import Optional
 
+import data
 import discord
 import templates
 import views
@@ -12,10 +13,7 @@ from logger import LOGGER
 
 
 class Utils(discord.Cog):
-    """
-    Module for system tasks that won't be seen by the end user and
-    administrators.
-    """
+    """utils_help"""
     def __init__(self, bot: CheeseBot):
         self.bot = bot
         self.emoji = "🛠"
@@ -23,11 +21,14 @@ class Utils(discord.Cog):
     @slash_command(
         name="ping",
         description="Test the Bot Latency.",
-        help="Test bot latency, as well as message latency by measuring the time it takes to send the embed.",
+        help="ping_help",
     )
     async def ping(self, ctx: discord.ApplicationContext) -> None:
+        langcode = self.bot.db.get_langcode(ctx.guild_id)
         start_time = time.time()
-        message = await ctx.respond("Testing Ping...")
+        message = await ctx.respond(
+            self.bot.lang.get("ping_message", langcode)
+        )
         end_time = time.time()
         bot_latency = round(self.bot.latency * 1000)
         api_latency = round((end_time - start_time) * 1000)
@@ -38,77 +39,83 @@ class Utils(discord.Cog):
         else:
             color = 0x09FF00
         embed = discord.Embed(
-            title="Pong!", color=color, timestamp=utils.utcnow()
+            title=self.bot.lang.get(
+                "ping_pong", langcode
+            ), color=color, timestamp=utils.utcnow()
         )
-        embed.add_field(name="Bot Latency", value=f"{bot_latency}ms")
         embed.add_field(
-            name="API/Message Latency",
-            value=f"{api_latency}ms",
+            name=self.bot.lang.get("ping_field_bot_latency", langcode),
+            value=self.bot.lang.get(
+                "ping_latency_template", langcode
+            ).format(ms=bot_latency),
+        )
+        embed.add_field(
+            name=self.bot.lang.get("ping_field_api_latency", langcode),
+            value=self.bot.lang.get(
+                "ping_latency_template", langcode
+            ).format(ms=api_latency),
         )
         if color == 0xFF6200 or color == 0xDE0000:
             embed.add_field(
-                name="High Values",
-                value="If the Bot latency is high the Bot is probably "
-                      "overloaded.\nIf the API Latency is high, Discord most "
-                      "likely got some problems.\nIf you don't feel that the "
-                      "Bot is slow don't worry about high numbers, 1000ms is "
-                      "also just a second.",
+                name=self.bot.lang.get("ping_field_high_values", langcode),
+                value=self.bot.lang.get("ping_high_values", langcode),
                 inline=False,
             )
 
-        embed.set_footer(text=f"Pong requested by {ctx.author.name}")
+        embed.set_footer(text=self.bot.lang.get(
+            "ping_footer", langcode
+        ).format(name=ctx.author.name))
         await message.edit(content=None, embed=embed)
 
     @slash_command(
         name="about",
         description="About the Bot.",
-        help="Display information about CheeseBot including a link to it's support server and GitHub repository.",
+        help="about_help",
     )
     async def about(self, ctx: discord.ApplicationContext):
+        langcode = self.bot.db.get_langcode(ctx.guild_id)
         app_info = await self.bot.application_info()
         embed = templates.InfoEmbed(
-            title=f"About {self.bot.user.name}",  # type: ignore
-            description=app_info.summary,
+            title=self.bot.lang.get("about_embed_title", langcode),
+            description=self.bot.lang.get("about_embed_desc", langcode),
             timestamp=utils.utcnow(),
             author=discord.EmbedAuthor(
                 name=ctx.author.name,
                 icon_url=ctx.author.avatar.url if ctx.author.avatar else None,
             ),
             thumbnail=(
-                ctx.bot.user.avatar.url if ctx.bot.user.avatar else None  # type: ignore  # noqa
+                ctx.bot.user.avatar.url if ctx.bot.user.avatar else None
             ),
         )
-        embed.description += (
-            "\n\nThats right, my main mission is to serve you with as much "
-            "cheesecake as I can. Check out my amazing /help command to find "
-            "out what I can do for you!"
-        )
         embed.add_field(
-            name="Creator",
-            value=f"I have been developed by {app_info.owner}.",
+            name=self.bot.lang.get("about_embed_field_creator", langcode),
+            value=self.bot.lang.get("about_embed_creator", langcode),
             inline=False,
         )
         embed.add_field(
-            name="Open Source",
-            value="I was made using Pycord, a Discord API Wrapper for Python. "
-                  "My code is publicly available on GitHub. Feel free to "
-                  "review and contribute! 🙂",
-                  inline=False,
+            name=self.bot.lang.get("about_embed_field_open_source", langcode),
+            value=self.bot.lang.get("about_embed_open_source", langcode),
+            inline=False,
         )
         embed.add_field(
-            name="Clip Art",
-            value="Some clip art you find in this Bot is provided by "
-                  "[clipground.com](https://clipground.com). This includes my "
-                  "profile picture!"
+            name=self.bot.lang.get("about_embed_field_clip_art", langcode),
+            value=self.bot.lang.get("about_embed_clip_art", langcode)
         )
         await ctx.respond(
             embed=embed,
             view=views.MultiLinkView(
                 urls=[
-                    "https://example.com",
-                    "https://github.com/NotYou404/cheesebot",
+                    data.get_data(
+                        "global_strings", data.DataType.JSON
+                    )["support_server_invite"],
+                    data.get_data(
+                        "global_strings", data.DataType.JSON
+                    )["github_repo"],
                 ],
-                texts=["Discord Support Server", "GitHub Repo"],
+                texts=[
+                    self.bot.lang.get("about_view_dcss", langcode),
+                    self.bot.lang.get("about_view_github_repo", langcode),
+                ],
             )
         )
 

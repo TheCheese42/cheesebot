@@ -1,6 +1,19 @@
+#  ______________________________________________
+# |                                              |
+# |          Strings file for CheeseBot          |
+# |                                              |
+# |  Note to translators:                        |
+# |  - Please do not remove any comments         |
+# |  - Please do not reorder elements            |
+# |  - Please do not use AI-based translators    |
+# |  - If you have any questions, reach out to   |
+# |    thecheese_knife on Discord.               |
+# |______________________________________________|
+
+
 [meta]
 langcode = "en_US"
-name = "English"
+name = "English"   # Should be native name, e.g. "Deutsch" for german
 
 [strings]
 # fun
@@ -50,8 +63,64 @@ shutdown_embed_title = "Shutting down..."
 shutdown_embed_description = "Unloading modules..."
 shutdown_success_embed_title = "Shut down"
 shutdown_success_embed_description = "CheeseBot shut down successfully."
+# on_application_command_error
+# generic error
+ge_embed_title = "Error running command..."
+ge_embed_description = "An unexpected error occurred when running command {command_name}: `{error}`\nThis has been logged and will be fixed soon. If you're experiencing further issues please reach out to us at CheeseBot's support Server. Thank you for understanding!"
+ge_view_dcss = "Discord Support Server"
+error_notowner_message = ""
+# system
+system_help = "Fetch current system informations about the machine the bot is running on. This includes system version and release, processor information and usage as well as memory information and usage."
+system_embed_title = "System Information"
+system_cpu_usage_template = "CPU {count}: {percent}%"
+system_ram_usage_percent = "{percent}%"
+system_field_system = "System"
+system_field_release = "Release"
+system_field_version = "Version"
+system_field_processor = "Processor"
+system_field_physical_cores = "Physical Cores"
+system_field_total_cores = "Total Cores"
+system_field_cpu_usage = "CPU Usage"
+system_field_total_ram = "Total RAM"
+system_field_available_ram = "Available RAM"
+system_field_used_ram = "Used RAM"
+system_field_used_ram_percentage = "Used RAM Percentage"
+# eval
+eval_help = "Evaluate any valid Python expression using the command's lexical scope. This includes a `self: discord.Cog`, a `ctx: discord.ApplicationContext` and all imported modules. Any standard lib modules as well as anything specified in the bot's dependency tree can be installed can be imported as well.\n\nIf the `exec` parameter is `True` the expression will be evaluated using the `exec()` function instead of `eval()`. This allows multi-line evaluations and more complex constructs."
+eval_embed_title = "Eval result"
+eval_embed_field_input_expression = "Input Expression"
+eval_embed_field_return_value = "Return value"
+eval_embed_field_stdout = "Stdout"
+eval_embed_field_exception = "Exception"
+eval_embed_footer_complete = "Eval took {ms}ms"
+eval_embed_footer_failure = "Eval did not complete"
 
-# functions
+# utils
+utils_desc = "Utility commands for server owners and members."
+# ping
+ping_help = "Test bot latency, as well as message latency by measuring the time it takes to send the embed."
+ping_message = "Testing Ping..."
+ping_pong = "Pong!"
+ping_field_bot_latency = "Bot Latency"
+ping_latency_template = "{ms}ms"
+ping_field_api_latency = "API/Message Latency"
+ping_field_high_values = "High Values"
+ping_high_values = "If the Bot latency is high the Bot is probably overloaded.\nIf the API Latency is high, Discord most likely got some problems.\nIf you don't feel that the Bot is slow don't worry about high numbers, 1000ms is also just a second."
+ping_footer = "Pong requested by {name}"
+# about
+about_help = "Display information about CheeseBot including a link to it's support server and GitHub repository."
+about_embed_title = "About CheeseBot"
+about_embed_description = "The cheesiest bot on the Planet! Despite not having the ability to bypass earth's boundaries, I'll try my best serving you lots of cheesecake.\n\nThats right, my main mission is to serve you with as much cheesecake as I can. Check out my amazing /help command to find out what I can do for you!"
+about_embed_field_creator = "Creator"
+about_embed_creator = "I have been developed by {name}."
+about_embed_field_open_source = "Open Source"
+about_embed_open_source = "I am made using Pycord, a Discord API Wrapper for Python. My code is publicly available on GitHub. Feel free to review and contribute! 🙂"
+about_embed_field_clip_art = "Clip Art"
+about_embed_clip_art = "Some clip art you find in this Bot is provided by [clipground.com](https://clipground.com). This includes my profile picture!"
+about_view_dcss = "Discord Support Server"
+about_view_github_repo = "GitHub Repo"
+
+# functions system
 # join_user_voice_channel
 juvc_server_only = "This only works in a Server."
 juvc_user_not_in_voice_channel = "You have to be in a voice channel."
@@ -59,3 +128,5 @@ juvc_user_deaf = "Please make sure you aren't deafened."
 juvc_already_playing = "I'm already playing something in {voice_channel_mention}!"
 juvc_already_in_channel = "I'm already in a voice channel with you."
 juvc_joined_channel = "Joined your voice channel."
+# le_1024
+le_1024_replace = "*Too long to display*"

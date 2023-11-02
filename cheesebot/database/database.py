@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any
+from functools import cache
 
 from exceptions import MalformedColumn
 from lang import DEFAULT_LANGUAGE
@@ -90,16 +91,15 @@ class CheeseDatabase:
         id: str,
         field: str,
     ):
-        self.fetch_data(
+        result = self.fetch_data(
             f"SELECT {field} FROM {table} WHERE id = %s",
             params=(id,)
         )
         try:
-            value = self.cursor.fetchone()[0]
-            out = value
-        except TypeError:
-            out = None
-        return out
+            value = result[0][0]  # Twice cuz result is like `[("en_US",)]`
+        except IndexError:
+            value = None
+        return value
 
     def update_or_create(
         self,
@@ -122,15 +122,19 @@ class CheeseDatabase:
                 params=(id, value),
             )
 
+    @cache
     def get_langcode(self, guild_id: int | str | None = None) -> str:
         if guild_id is None:
             return DEFAULT_LANGUAGE
 
-        return self.fetch_value(
+        code = self.fetch_value(
             table="server_config",
-            id=guild_id,
+            id=str(guild_id),
             field="lang_code",
         )
+        if code is None:
+            return DEFAULT_LANGUAGE
+        return code
 
     def ensure_connected(self):
         if not self.connection.is_connected():
