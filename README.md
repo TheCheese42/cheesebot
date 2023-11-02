@@ -75,9 +75,23 @@ MYSQL_DATABASE = <DATABASE_NAME>
 python3 cheesebot
 ```
 
+## Database
+
+CheeseBot makes use of a MySQL database to store it's persistent data. The schema is created automatically, the only thing you have to do is setup a MySQL Server and pass the authentication credentials to the `.env` file.
+
+### Database migration
+
+New database tables and columns may be added, so the existing database needs to be migrated. The Bot does not do this by itself but throw an error if an invalid database schema is detected. Please migrate manually using the table definitions in [`database.py`](https://github.com/NotYou404/cheesebot/blob/main/cheesebot/database/database.py). If you don't know what tool to use, I am using [MySQL Workbench](https://www.mysql.com/products/workbench/). It can also be used to make manual database backups.
+
 ## Localization
 
-The bot is NOT making use of localized slash commands. This is because people with different languages than the command executor most likely won't understand the output. This is not very useful in multilingual servers. Ability for guild-wide localization may be added in the future.
+The bot is NOT making use of localized slash commands. This is because people with different languages than the command executor most likely won't understand the output. This is not very useful in multilingual servers. However there is server-wide command output localization. The language can be set, get and reset using the `/language` command group.
+
+Supported Languages:
+
+- en_US (English)
+
+And that's it. If you want to contribute, please copy the [`en_US.toml`](https://github.com/NotYou404/cheesebot/blob/main/cheesebot/langs/en_US.toml) file from the `cheesebot/langs` directory, set the required metadata and begin translating! When you're done, please submit a pull request or send your copy to `thecheese_knife` on Discord.
 
 ## Voice Support
 
