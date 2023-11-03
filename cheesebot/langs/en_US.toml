@@ -119,6 +119,15 @@ about_embed_field_clip_art = "Clip Art"
 about_embed_clip_art = "Some clip art you find in this Bot is provided by [clipground.com](https://clipground.com). This includes my profile picture!"
 about_view_dcss = "Discord Support Server"
 about_view_github_repo = "GitHub Repo"
+# embed_group
+embed_group_help = "Provides a set of commands to send and edit customizable embeds."
+# embed_post
+embed_post_help = "Send an embed specified using [discord's official JSON format](https://discord.com/developers/docs/resources/channel#embed-object). To generate those JSON strings a visualizer like [EmbedBuilder.com](https://embedbuilder.com) can be used."
+embed_post_invalid_json = "I'm sorry but your provided json was invalid. Please check you copied everything and actually exported as JSON."
+embed_post_button_see_error = "See error"
+embed_post_no_permissions = "I am not allowed to send the embed. Check my permissions!"
+embed_post_malformed_json = "Your JSON seems to be malformed."
+embed_post_success = "Embed sent to {channel}!"
 
 # functions system
 # join_user_voice_channel

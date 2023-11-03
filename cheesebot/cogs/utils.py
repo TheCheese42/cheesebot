@@ -123,13 +123,13 @@ class Utils(discord.Cog):
         name="embed",
         description="Send and manage embeds",
     )
-    embed_group.help = "Provides a set of commands to send and edit customizable embeds."
+    embed_group.help = "embed_group_help"
 
     @group_slash_command(
         group=embed_group,
         name="post",
         description="Post an embed",
-        help="Send an embed specified using [discord's official JSON format](https://discord.com/developers/docs/resources/channel#embed-object). To generate those JSON strings a visualizer like [EmbedBuilder.com](https://embedbuilder.com) can be used.",
+        help="embed_post_help",
     )
     @discord.option(
         name="json_data",
@@ -150,14 +150,16 @@ class Utils(discord.Cog):
         json_data: str,
         channel: Optional[discord.TextChannel] = None
     ):
+        langcode = self.bot.db.get_langcode(ctx.guild_id)
         try:
             embed = discord.Embed.from_dict(json.loads(json_data))
         except Exception as e:
             await ctx.respond(
-                "I'm sorry but your provided json was invalid. Please check "
-                "you copied everything and actually exported as JSON.",
+                self.bot.lang.get("embed_post_invalid_json", langcode),
                 view=views.TextResponseButtonView(
-                    label="See error",
+                    label=self.bot.lang.get(
+                        "embed_post_button_see_error", langcode
+                    ),
                     response_text=f"{e.__class__.__name__}: {e}",
                 )
             )
@@ -169,19 +171,26 @@ class Utils(discord.Cog):
         except discord.HTTPException as e:
             if e.code == 50033:
                 await ctx.respond(
-                        "I am not allowed to send the embed. Check my "
-                        "permissions!"
+                        self.bot.lang.get(
+                            "embed_post_no_permissions", langcode
+                        )
                     )
             elif e.code == 50035:
                 await ctx.respond(
-                        "Your JSON seems to be malformed.",
+                        self.bot.lang.get(
+                            "embed_post_malformed_json", langcode
+                        ),
                         view=views.TextResponseButtonView(
-                            label="Get error",
+                            label=self.bot.lang.get(
+                                "embed_post_button_see_error", langcode
+                            ),
                             response_text=f"{e.__class__.__name__}: {e}"
                         )
                     )
         await ctx.respond(
-            f"Embed sent to {channel.mention}!",
+            self.bot.lang.get(
+                "embed_post_success", langcode
+            ).format(channel=channel.mention),
             delete_after=5,
         )
 
