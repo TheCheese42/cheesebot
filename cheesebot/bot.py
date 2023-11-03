@@ -24,12 +24,31 @@ class CheeseBot(discord.Bot):
         self.lang = LangManager()
 
         LOGGER.info("Establishing database connection.")
+
+        host = os.getenv("MYSQL_HOST")
+        user = os.getenv("MYSQL_USERNAME")
+        password = os.getenv("MYSQL_PASSWORD")
+        database = os.getenv("MYSQL_DATABASE")
+        port = os.getenv("MYSQL_PORT")
+
+        def malformed_dotenv(missing_key: str):
+            raise RuntimeError(f"Malformed .env: Missing key '{missing_key}'")
+
+        if host is None:
+            malformed_dotenv("MYSQL_HOST")
+        if user is None:
+            malformed_dotenv("MYSQL_USERNAME")
+        if password is None:
+            malformed_dotenv("MYSQL_PASSWORD")
+        if database is None:
+            malformed_dotenv("MYSQL_DATABASE")
+
         self.db = CheeseDatabase(
-            host=os.getenv("MYSQL_HOST"),
-            user=os.getenv("MYSQL_USERNAME"),
-            password=os.getenv("MYSQL_PASSWORD"),
-            database=os.getenv("MYSQL_DATABASE"),
-            port=os.getenv("MYSQL_PORT")
+            host=host,
+            user=user,
+            password=password,
+            database=database,
+            port=port or "3306",
         )
 
     def setup(self):
