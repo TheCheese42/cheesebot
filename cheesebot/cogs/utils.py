@@ -88,7 +88,9 @@ class Utils(discord.Cog):
             ),
         )
         embed.add_field(
-            name=self.bot.lang.get("about_embed_field_creator", langcode),
+            name=self.bot.lang.get(
+                "about_embed_field_creator", langcode
+            ).format(name=app_info.owner.global_name),
             value=self.bot.lang.get("about_embed_creator", langcode),
             inline=False,
         )
