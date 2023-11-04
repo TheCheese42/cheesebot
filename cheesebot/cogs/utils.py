@@ -77,7 +77,7 @@ class Utils(discord.Cog):
         app_info = await self.bot.application_info()
         embed = templates.InfoEmbed(
             title=self.bot.lang.get("about_embed_title", langcode),
-            description=self.bot.lang.get("about_embed_desc", langcode),
+            description=self.bot.lang.get("about_embed_description", langcode),
             timestamp=utils.utcnow(),
             author=discord.EmbedAuthor(
                 name=ctx.author.name,
