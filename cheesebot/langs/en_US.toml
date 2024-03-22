@@ -25,6 +25,17 @@ nitro_embed_subscription = "**CheeseBot** gifted you nitro for **1 month!**"
 nitro_view_button_claim = "Claim"
 nitro_view_wrong_user = "This isn't your Nitro."
 
+# help
+help_desc = "Hidden module for the help command."
+# help
+help_help = "Maybe not that helpful."
+help_invalid_item = "I'm sorry but your provided module or command {item} is invalid. Use {help_command_mention} to get a list of commands!"
+help_embed_title_all = "CheeseBot Help"
+help_embed_title_module = "{module} Help"
+help_embed_title_group = "{group} Help"
+help_embed_title_command = "{command} Help"
+help_no_desc_provided = "*No description provided.*"
+
 # server
 server_desc = "Server administration tools."
 # language_group
